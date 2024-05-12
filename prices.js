@@ -1,6 +1,4 @@
-import { chromium } from "playwright";
-
-// TODO: Terminar de implementar las funciones y probarlas
+import { chromium } from 'playwright';
 
 async function mercadoLibrePrices() {
   const browser = await chromium.launch({ headless: false });
@@ -112,10 +110,12 @@ async function falabellaPrices() {
   return vals;
 }
 
+falabellaPrices()
+
 export {
-  mercadoLibrePrices,
-  olimpicaPrices,
-  falabellaPrices,
-  exitoPrices,
-  alkostoPrices,
-};
+    mercadoLibrePrices,
+    olimpicaPrices,
+    falabellaPrices,
+    exitoPrices,
+    alkostoPrices,
+  };

@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  
   "scripts": {
-    "dev": "nodemon index.js"    
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Welcome to our online price comparator, where you can find the best prices for your  you can find the best prices for your favorite technology products in the main e-commerce stores in Colombia.",
   "dependencies": {
     "nodemon": "^3.1.0",
-    "playwright": "^1.43.1"
-  }
+    "playwright": "^1.44.0"
+  },
+  "devDependencies": {}
 }

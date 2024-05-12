@@ -1,11 +1,12 @@
+
 import {
     mercadoLibrePrices,
     olimpicaPrices,
     falabellaPrices,
     exitoPrices,
     alkostoPrices,
-  } from "./assets/js/prices.js"
-
+  } from "./prices.js";
+  
   const MLprices = await mercadoLibrePrices();
 
   class PriceList {
@@ -14,7 +15,7 @@ import {
     }
 
     render() {
-        const container = document.getElementById('MercadoLibrePrices');
+        const container = document.getElementById('app');
         container.innerHTML = '';
 
         this.prices.forEach(price => {
