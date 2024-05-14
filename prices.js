@@ -110,8 +110,6 @@ async function falabellaPrices() {
   return vals;
 }
 
-falabellaPrices()
-
 export {
     mercadoLibrePrices,
     olimpicaPrices,

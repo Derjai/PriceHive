@@ -1,4 +1,3 @@
-
 import {
     mercadoLibrePrices,
     olimpicaPrices,
@@ -30,4 +29,3 @@ import {
 const priceListComponent = new PriceList(MLprices);
 
 priceListComponent.render()
-
