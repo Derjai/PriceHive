@@ -80,4 +80,15 @@ header form button:hover{
     color: #888;
     text-align: center;
     margin-top: 50px;
+    justify-content: center;
+}
+
+.card{
+    background-color: #5A3E10;
+    color: white;
+    margin: 10px;
+    border-radius: 20px;
+    width: 400px;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }

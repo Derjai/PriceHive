@@ -1,8 +1,7 @@
-import { chromium } from 'playwright';
+const { chromium } = require('playwright');
 
 async function mercadoLibrePrices() {
   const browser = await chromium.launch({ headless: false });
-  var vals = [];
   const page = await browser.newPage();
   await page.goto("https://www.mercadolibre.com.co/");
   await page.waitForLoadState("domcontentloaded");
@@ -11,15 +10,48 @@ async function mercadoLibrePrices() {
   await searchBar.fill("Samsung S20");
   await searchButton.click();
   await page.waitForLoadState("domcontentloaded");
-  var values = await page.$$(".ui-search-price__second-line");
-  for (const val of values) {
-    const price = await val.$(".andes-money-amount__fraction");
-    vals.push(await price.textContent());
-  }
-  vals = vals.filter((_, index) => (index + 1) % 2 !== 0);
+  const newItem = await page.$('[title="Nuevo"]')
+  await newItem.click()
+  await page.waitForLoadState("domcontentloaded");
+  const filter = await page.locator(".andes-dropdown__trigger")
+  await filter.click()
+  await page.waitForLoadState("domcontentloaded");
+  const leastPrice = await page.$('[data-key="price_asc"]')
+  await leastPrice.click()
+  await page.waitForLoadState("domcontentloaded");
+  var values = await page.$$(".andes-money-amount__fraction");
+  var titles = await page.$$(".ui-search-item__title")
+  var imgs = await page.$$(".ui-search-result-image__element")
+  var links = await page.$$(".ui-search-item__group__element.ui-search-link__title-card.ui-search-link")
+// Get the text content of each element in the values array
+var valuesText = await Promise.all(values.map(async element => {
+  return await element.evaluate(node => node.textContent.trim());
+}));
 
-  await browser.close();
-  return vals.slice(0, 3);
+// Get the text content of each element in the titles array
+var titlesText = await Promise.all(titles.map(async element => {
+  return await element.evaluate(node => node.textContent.trim());
+}));
+
+var imgsSrc = await Promise.all(imgs.map(async element => {
+  return await element.evaluate(node => node.getAttribute("src"));
+}));
+
+// Get the text content of each element in the titles array
+var linksSrc = await Promise.all(links.map(async element => {
+  return await element.evaluate(node => node.getAttribute("href"));
+}));
+var html = "";
+  for (var i = 0; i < titlesText.length; i++) {
+      html += '<div class=card>';
+      html += "<img src= "+imgsSrc[i]+"></img>"
+      html += "<h4>" + titlesText[i] + "</h4>";
+      html += "<p>" + valuesText[i] + "</p>";
+      html += "<a href = "+linksSrc[i]+"> Compra Aqui</a>";
+      html += "</div>";
+  }
+  await browser.close()
+  return html;
 }
 
 async function olimpicaPrices() {
@@ -110,7 +142,7 @@ async function falabellaPrices() {
   return vals;
 }
 
-export {
+module.exports = {
     mercadoLibrePrices,
     olimpicaPrices,
     falabellaPrices,
