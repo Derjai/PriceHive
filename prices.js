@@ -1,7 +1,50 @@
-const { chromium } = require('playwright');
+const { chromium } = require("playwright");
+
+function toHTML(prices, titles, imgs, links) {
+  var html = "";
+  for (var i = 0; i < titles.length; i++) {
+    html += "<div class=card>";
+    html += "<img src= " + imgs[i] + "></img>";
+    html += "<h4>" + titles[i] + "</h4>";
+    html += "<p>" + prices[i] + "</p>";
+    html += "<a href = " + links[i] + "> Compra Aqui</a>";
+    html += "</div>";
+  }
+  return html;
+}
+
+async function getValues(values,titles,links,imgs){
+  var valuesText = await Promise.all(
+    values.map(async (element) => {
+      return await element.evaluate((node) => node.textContent.trim());
+    })
+  );
+
+  // Get the text content of each element in the titles array
+  var titlesText = await Promise.all(
+    titles.map(async (element) => {
+      return await element.evaluate((node) => node.textContent.trim());
+    })
+  );
+
+  var imgsSrc = await Promise.all(
+    imgs.map(async (element) => {
+      return await element.evaluate((node) => node.getAttribute('src'));
+    })
+  );
+
+  // Get the text content of each element in the titles array
+  var linksSrc = await Promise.all(
+    links.map(async (element) => {
+      return await element.evaluate((node) => node.getAttribute("href"));
+    })
+  );
+
+  return [valuesText,titlesText,linksSrc,imgsSrc]
+}
 
 async function mercadoLibrePrices() {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.mercadolibre.com.co/");
   await page.waitForLoadState("domcontentloaded");
@@ -10,53 +53,37 @@ async function mercadoLibrePrices() {
   await searchBar.fill("Samsung S20");
   await searchButton.click();
   await page.waitForLoadState("domcontentloaded");
-  const newItem = await page.$('[title="Nuevo"]')
-  await newItem.click()
+  const newItem = await page.$('[title="Nuevo"]');
+  await newItem.click();
   await page.waitForLoadState("domcontentloaded");
-  const filter = await page.locator(".andes-dropdown__trigger")
-  await filter.click()
+  const filter = await page.locator(".andes-dropdown__trigger");
+  await filter.click();
   await page.waitForLoadState("domcontentloaded");
-  const leastPrice = await page.$('[data-key="price_asc"]')
-  await leastPrice.click()
+  const leastPrice = await page.$('[data-key="price_asc"]');
+  await leastPrice.click();
   await page.waitForLoadState("domcontentloaded");
+
   var values = await page.$$(".andes-money-amount__fraction");
-  var titles = await page.$$(".ui-search-item__title")
-  var imgs = await page.$$(".ui-search-result-image__element")
-  var links = await page.$$(".ui-search-item__group__element.ui-search-link__title-card.ui-search-link")
-// Get the text content of each element in the values array
-var valuesText = await Promise.all(values.map(async element => {
-  return await element.evaluate(node => node.textContent.trim());
-}));
+  var titles = await page.$$(".ui-search-item__title");
+  var imgs = await page.$$(".ui-search-result-image__element");
+  var links = await page.$$(
+    ".ui-search-item__group__element.ui-search-link__title-card.ui-search-link"
+  );
 
-// Get the text content of each element in the titles array
-var titlesText = await Promise.all(titles.map(async element => {
-  return await element.evaluate(node => node.textContent.trim());
-}));
+  [valuesText,titlesText,linksSrc,imgsSrc] = await getValues(values,titles,links,imgs)
 
-var imgsSrc = await Promise.all(imgs.map(async element => {
-  return await element.evaluate(node => node.getAttribute("src"));
-}));
 
-// Get the text content of each element in the titles array
-var linksSrc = await Promise.all(links.map(async element => {
-  return await element.evaluate(node => node.getAttribute("href"));
-}));
-var html = "";
-  for (var i = 0; i < titlesText.length; i++) {
-      html += '<div class=card>';
-      html += "<img src= "+imgsSrc[i]+"></img>"
-      html += "<h4>" + titlesText[i] + "</h4>";
-      html += "<p>" + valuesText[i] + "</p>";
-      html += "<a href = "+linksSrc[i]+"> Compra Aqui</a>";
-      html += "</div>";
-  }
-  await browser.close()
-  return html;
+  await browser.close();
+  return toHTML(
+    valuesText.slice(0, 3),
+    titlesText.slice(0, 3),
+    imgsSrc.slice(0, 3),
+    linksSrc.slice(0, 3)
+  );
 }
 
 async function olimpicaPrices() {
-  const browser = await chromium.launch({ headless: false });
-  var vals = [];
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.olimpica.com/");
   await page.waitForLoadState("domcontentloaded");
@@ -64,63 +91,104 @@ async function olimpicaPrices() {
   await searchBar.fill("Samsung S20");
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
-  const orderButton = await page.locator(".olimpica-pragma-0-x-orderByButton");
-  await orderButton.click();
-  await page.waitForLoadState("domcontentloaded");
-  const buttons = await page.locator(".olimpica-pragma-0-x-orderByOptionItem");
-  const priceButton = await buttons.filter(
-    (button) => button.textContent() === "Precios más bajo"
+
+  await page.waitForSelector('.vtex-search-result-3-x-galleryItem.vtex-search-result-3-x-galleryItem--normal.vtex-search-result-3-x-galleryItem--grid-3');
+
+
+  var actualValueContainers = await page.$$('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF');
+
+  var values = await actualValueContainers.map(async (container) => {
+    return await container.$$(".olimpica-dinamic-flags-0-x-currencyInteger")
+  })
+
+  var titles = await page.$$(
+    ".vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body"
   );
-  await priceButton.click();
-  await page.waitForLoadState("domcontentloaded");
-  var values = await page.$$(".price");
-  values = values.slice(0, 3);
-  for (const val of values) {
-    vals.push(await val.textContent());
-  }
+  var imgs = await page.$$(
+    ".vtex-product-summary-2-x-imageNormal vtex-product-summary-2-x-image vtex-product-summary-2-x-mainImageHovered"
+  );
+  var links = await page.$$(
+    ".vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--product-summary h-100 flex flex-column"
+  );
+
+  console.log(actualValueContainers)
+  //console.log(titles)
+  //console.log(imgs)
+  //console.log(links)
+
+  //[valuesText,titlesText,linksSrc,imgsSrc] = await getValues(values,titles,imgs,links)
+
+  //console.log(valuesText)
+
   await browser.close();
-  return vals;
+  // return toHTML(
+  //   groupedValues.slice(0, 2),
+  //   titlesText.slice(0, 2),
+  //   imgsSrc.slice(0, 2),
+  //   linksSrc.slice(0, 2)
+  // );
 }
 
 async function alkostoPrices() {
   const browser = await chromium.launch({ headless: false });
-  var vals = [];
   const page = await browser.newPage();
   await page.goto("https://www.alkosto.com/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.locator("#js-site-search-input");
-  await searchBar.fill("Samsung S20");
-  const searchButton = await page.locator(
-    ".ais-SearchBox-submit.js-algolia-search-button.btn"
-  );
-  await searchButton.click();
+  await searchBar.fill("Samsung S23");
+  await searchBar.click();
+  await page.press("#js-site-search-input", "Enter");
   await page.waitForLoadState("domcontentloaded");
-  var values = await page.$$(".price");
-  values = values.slice(0, 3);
-  for (const val of values) {
-    vals.push(await val.textContent());
-  }
+
+  await page.waitForSelector('.js-product-item.js-algolia-product-click');
+
+  titles = await page.$$('h3.product__item__top__title.js-algolia-product-click.js-algolia-product-title');
+  values = await page.$$('span.price');
+  links = await page.$$('a.js-view-details.js-algolia-product-click');
+  imgs = await page.$$('.product__item__information__image.js-algolia-product-click img');
+
+
+  [valuesText,titlesText,linksSrc,imgsSrc] = await getValues(values,titles,links,imgs)
+  
+  linksSrc = linksSrc.map((src) => {return "https://www.alkosto.com"+src})
+  imgsSrc = imgsSrc.map((src) => {return "https://www.alkosto.com"+src})
+
+  console.log(imgsSrc)
   await browser.close();
-  return vals;
+  return toHTML(
+      valuesText.slice(0, 2),
+      titlesText.slice(0, 2),
+      imgsSrc.slice(0, 2),
+      linksSrc.slice(0, 2)
+    );
 }
 
 async function exitoPrices() {
   const browser = await chromium.launch({ headless: false });
-  var vals = [];
   const page = await browser.newPage();
   await page.goto("https://www.exito.com/");
-  await page.waitForLoadState("domcontentloaded");
+  await page.waitForTimeout(2000)
   const searchBar = await page.locator('input[data-testid="store-input"]');
+  console.log(searchBar);
   await searchBar.fill("Samsung S20");
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
-  var values = await page.$$(".price");
-  values = values.slice(0, 3);
-  for (const val of values) {
-    vals.push(await val.textContent());
-  }
+
+
+
+  var values = await page.$$(".ProductPrice_container__price__XmMWA");
+  var titles = await page.$$("a.${link_fs-link__J1sGD}[title]");
+  var imgs = await page.$$(".imagen_plp");
+
+  webscr = getValues(values,titles,imgs,titles)
+
   await browser.close();
-  return vals;
+  return toHTML(
+    valuesText.slice(0, 3),
+    titlesText.slice(0, 3),
+    imgsSrc.slice(0, 3),
+    linksSrc.slice(0, 3)
+  );
 }
 
 async function falabellaPrices() {
@@ -133,19 +201,30 @@ async function falabellaPrices() {
   await searchBar.fill("Samsung S20");
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
-  var values = await page.$$(".cmr-cm-price__value");
-  values = values.slice(0, 3);
-  for (const val of values) {
-    vals.push(await val.textContent());
-  }
-  await browser.close();
-  return vals;
+
+  await page.waitForSelector('.jsx-1484439449.search-results-4-grid.grid-pod');
+
+  titles = await page.$$('.jsx-2481219049.copy2.primary.jsx-3451706699-.normal.line-clamp.line-clamp-3.pod-subTitle.subTitle-rebrand');
+  values = await page.$$('span.price');
+  links = await page.$$('a.js-view-details.js-algolia-product-click');
+  imgs = await page.$$('.product__item__information__image.js-algolia-product-click img');
+
+  console.log(titles)
+
+  //[valuesText,titlesText,linksSrc,imgsSrc] = getValues(values,titles,imgs,titles)
+  //await browser.close();
+  // return toHTML(
+  //   valuesText.slice(0, 3),
+  //   titlesText.slice(0, 3),
+  //   imgsSrc.slice(0, 3),
+  //   linksSrc.slice(0, 3)
+  // );
 }
 
 module.exports = {
-    mercadoLibrePrices,
-    olimpicaPrices,
-    falabellaPrices,
-    exitoPrices,
-    alkostoPrices,
-  };
+  mercadoLibrePrices,
+  olimpicaPrices,
+  falabellaPrices,
+  exitoPrices,
+  alkostoPrices,
+};

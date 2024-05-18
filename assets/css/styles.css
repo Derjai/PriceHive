@@ -92,3 +92,7 @@ header form button:hover{
     padding-top: 20px;
     padding-bottom: 20px;
 }
+
+.card img{
+    width: 300px;
+}

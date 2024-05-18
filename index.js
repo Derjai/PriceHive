@@ -13,7 +13,11 @@ app.use(express.static(path.join(__dirname, 'assets')));
 
 app.get('/', async (req, res) => {
     try {
-        const MLResults = await mercadoLibrePrices();
+        //const MLResults = await mercadoLibrePrices();
+        //const OResults = await olimpicaPrices();
+        //const AResults = await alkostoPrices();
+        //const EResults = await exitoPrices();
+        const FResults = await falabellaPrices();
 
         res.send(`
         <!DOCTYPE html>
@@ -33,7 +37,7 @@ app.get('/', async (req, res) => {
                     </div>
                     <form action ="/search" method="GET">
                         <input type="search" name="search" id="search" placeholder="Buscar productos">
-                        <button type="submit">Buscar</button>
+                        <button type="submit" onClick = {}>Buscar</button>
                     </form>
                 </header>
                 <div class="display">
@@ -41,7 +45,7 @@ app.get('/', async (req, res) => {
                     <button id="filterStore">Filtrar por tienda</button>
                     <div class="products">
                         <div id="placeholder" class="placeholder">
-                            ${MLResults}
+                            ${FResults}
                         </div>
                     </div>
                     <div class="pagination"></div>
