@@ -16,8 +16,8 @@ app.get('/', async (req, res) => {
         //const MLResults = await mercadoLibrePrices();
         //const OResults = await olimpicaPrices();
         //const AResults = await alkostoPrices();
-        //const EResults = await exitoPrices();
-        const FResults = await falabellaPrices();
+        const EResults = await exitoPrices();
+        //const FResults = await falabellaPrices();
 
         res.send(`
         <!DOCTYPE html>
@@ -45,7 +45,7 @@ app.get('/', async (req, res) => {
                     <button id="filterStore">Filtrar por tienda</button>
                     <div class="products">
                         <div id="placeholder" class="placeholder">
-                            ${FResults}
+                            ${EResults}
                         </div>
                     </div>
                     <div class="pagination"></div>

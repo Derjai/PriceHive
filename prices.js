@@ -13,7 +13,7 @@ function toHTML(prices, titles, imgs, links) {
   return html;
 }
 
-async function getValues(values,titles,links,imgs){
+async function getValues(values, titles, links, imgs) {
   var valuesText = await Promise.all(
     values.map(async (element) => {
       return await element.evaluate((node) => node.textContent.trim());
@@ -29,7 +29,7 @@ async function getValues(values,titles,links,imgs){
 
   var imgsSrc = await Promise.all(
     imgs.map(async (element) => {
-      return await element.evaluate((node) => node.getAttribute('src'));
+      return await element.evaluate((node) => node.getAttribute("src"));
     })
   );
 
@@ -40,7 +40,7 @@ async function getValues(values,titles,links,imgs){
     })
   );
 
-  return [valuesText,titlesText,linksSrc,imgsSrc]
+  return [valuesText, titlesText, linksSrc, imgsSrc];
 }
 
 async function mercadoLibrePrices() {
@@ -70,8 +70,12 @@ async function mercadoLibrePrices() {
     ".ui-search-item__group__element.ui-search-link__title-card.ui-search-link"
   );
 
-  [valuesText,titlesText,linksSrc,imgsSrc] = await getValues(values,titles,links,imgs)
-
+  [valuesText, titlesText, linksSrc, imgsSrc] = await getValues(
+    values,
+    titles,
+    links,
+    imgs
+  );
 
   await browser.close();
   return toHTML(
@@ -92,14 +96,17 @@ async function olimpicaPrices() {
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
 
-  await page.waitForSelector('.vtex-search-result-3-x-galleryItem.vtex-search-result-3-x-galleryItem--normal.vtex-search-result-3-x-galleryItem--grid-3');
+  await page.waitForSelector(
+    ".vtex-search-result-3-x-galleryItem.vtex-search-result-3-x-galleryItem--normal.vtex-search-result-3-x-galleryItem--grid-3"
+  );
 
-
-  var actualValueContainers = await page.$$('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF');
+  var actualValueContainers = await page.$$(
+    ".vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF"
+  );
 
   var values = await actualValueContainers.map(async (container) => {
-    return await container.$$(".olimpica-dinamic-flags-0-x-currencyInteger")
-  })
+    return await container.$$(".olimpica-dinamic-flags-0-x-currencyInteger");
+  });
 
   var titles = await page.$$(
     ".vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body"
@@ -111,7 +118,7 @@ async function olimpicaPrices() {
     ".vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--product-summary h-100 flex flex-column"
   );
 
-  console.log(actualValueContainers)
+  console.log(actualValueContainers);
   //console.log(titles)
   //console.log(imgs)
   //console.log(links)
@@ -140,47 +147,82 @@ async function alkostoPrices() {
   await page.press("#js-site-search-input", "Enter");
   await page.waitForLoadState("domcontentloaded");
 
-  await page.waitForSelector('.js-product-item.js-algolia-product-click');
+  await page.waitForSelector(".js-product-item.js-algolia-product-click");
 
-  titles = await page.$$('h3.product__item__top__title.js-algolia-product-click.js-algolia-product-title');
-  values = await page.$$('span.price');
-  links = await page.$$('a.js-view-details.js-algolia-product-click');
-  imgs = await page.$$('.product__item__information__image.js-algolia-product-click img');
+  titles = await page.$$(
+    "h3.product__item__top__title.js-algolia-product-click.js-algolia-product-title"
+  );
+  values = await page.$$("span.price");
+  links = await page.$$("a.js-view-details.js-algolia-product-click");
+  imgs = await page.$$(
+    ".product__item__information__image.js-algolia-product-click img"
+  );
 
+  [valuesText, titlesText, linksSrc, imgsSrc] = await getValues(
+    values,
+    titles,
+    links,
+    imgs
+  );
 
-  [valuesText,titlesText,linksSrc,imgsSrc] = await getValues(values,titles,links,imgs)
-  
-  linksSrc = linksSrc.map((src) => {return "https://www.alkosto.com"+src})
-  imgsSrc = imgsSrc.map((src) => {return "https://www.alkosto.com"+src})
+  linksSrc = linksSrc.map((src) => {
+    return "https://www.alkosto.com" + src;
+  });
+  imgsSrc = imgsSrc.map((src) => {
+    return "https://www.alkosto.com" + src;
+  });
 
-  console.log(imgsSrc)
+  console.log(imgsSrc);
   await browser.close();
   return toHTML(
-      valuesText.slice(0, 2),
-      titlesText.slice(0, 2),
-      imgsSrc.slice(0, 2),
-      linksSrc.slice(0, 2)
-    );
+    valuesText.slice(0, 2),
+    titlesText.slice(0, 2),
+    imgsSrc.slice(0, 2),
+    linksSrc.slice(0, 2)
+  );
 }
 
 async function exitoPrices() {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.exito.com/");
-  await page.waitForTimeout(2000)
-  const searchBar = await page.locator('input[data-testid="store-input"]');
-  console.log(searchBar);
+  await page.waitForLoadState("domcontentloaded");
+  const searchBar = await page.$('[data-testid="store-input"]');
   await searchBar.fill("Samsung S20");
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
 
+  await page.waitForSelector("p.ProductPrice_container__price__XmMWA");
 
-
-  var values = await page.$$(".ProductPrice_container__price__XmMWA");
-  var titles = await page.$$("a.${link_fs-link__J1sGD}[title]");
+  var values = await page.$$('p.ProductPrice_container__price__XmMWA')
+  var titleLinks = await page.$$('a[data-testid="product-link"][title]')
   var imgs = await page.$$(".imagen_plp");
 
-  webscr = getValues(values,titles,imgs,titles)
+  var valuesText = await Promise.all(
+    values.map(async (element) => {
+      return await element.evaluate((node) => node.textContent.trim());
+    })
+  );
+
+  var titlesText = await Promise.all(
+    titleLinks.map(async (element) => {
+      return await element.evaluate((node) => node.getAttribute('title'));
+    })
+  );
+
+  var imgsSrc = await Promise.all(
+    imgs.map(async (element) => {
+      return await element.evaluate((node) => node.getAttribute("src"));
+    })
+  );
+
+  var linksSrc = await Promise.all(
+    titleLinks.map(async (element) => {
+      return await element.evaluate((node) => "https://www.exito.com"+node.getAttribute("href"));
+    })
+  );
+
+  console.log(titlesText)
 
   await browser.close();
   return toHTML(
@@ -193,7 +235,6 @@ async function exitoPrices() {
 
 async function falabellaPrices() {
   const browser = await chromium.launch({ headless: false });
-  var vals = [];
   const page = await browser.newPage();
   await page.goto("https://www.falabella.com.co/falabella-co/");
   await page.waitForLoadState("domcontentloaded");
@@ -202,23 +243,38 @@ async function falabellaPrices() {
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
 
-  await page.waitForSelector('.jsx-1484439449.search-results-4-grid.grid-pod');
+  await page.waitForSelector(".pod-subTitle.subTitle-rebrand");
 
-  titles = await page.$$('.jsx-2481219049.copy2.primary.jsx-3451706699-.normal.line-clamp.line-clamp-3.pod-subTitle.subTitle-rebrand');
-  values = await page.$$('span.price');
-  links = await page.$$('a.js-view-details.js-algolia-product-click');
-  imgs = await page.$$('.product__item__information__image.js-algolia-product-click img');
+  var titles = await page.$$(".pod-subTitle.subTitle-rebrand");
+  var values = await page.$$(
+    ".copy10.primary.medium.jsx-3451706699.normal.line-height-22"
+  );
+  var links = await page.$$(
+    "a.jsx-2481219049.jsx-2056183481.pod.pod-4_GRID.pod-link"
+  );
+  var imgs = await page.$$('section.jsx-2469003054 picture > img[width="240"]');
 
-  console.log(titles)
+  imgs = await imgs.filter(async (img) => {
+    if (await img.isVisible()) {
+      return imgs
+    }
+  });
 
-  //[valuesText,titlesText,linksSrc,imgsSrc] = getValues(values,titles,imgs,titles)
-  //await browser.close();
-  // return toHTML(
-  //   valuesText.slice(0, 3),
-  //   titlesText.slice(0, 3),
-  //   imgsSrc.slice(0, 3),
-  //   linksSrc.slice(0, 3)
-  // );
+
+  [valuesText, titlesText, linksSrc, imgsSrc] = await getValues(
+    values,
+    titles,
+    links,
+    imgs
+  );
+
+  await browser.close();
+  return toHTML(
+    valuesText.slice(0, 3),
+    titlesText.slice(0, 3),
+    imgsSrc.slice(0, 3),
+    linksSrc.slice(0, 3)
+  );
 }
 
 module.exports = {
