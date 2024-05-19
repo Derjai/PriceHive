@@ -1,98 +1,116 @@
-body{
-    margin: 0;
-    padding: 0;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-header{
-    background-color: #E1D8CA;
-    color: #745414;
-    display: flex;
+header {
+  background-color: #e1d8ca;
+  color: #745414;
+  display: flex;
 }
 
-header .logo{
-    display: flex;
-    align-items: center;
-    margin-right: auto;
+header .logo {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
 }
 
-header .logo img{
-    margin-right: 10px;
-    width: 80px;
+header .logo img {
+  margin-right: 10px;
+  width: 80px;
 }
 
-header .logo h1{
-    margin: 0;
+header .logo h1 {
+  margin: 0;
 }
 
-header form{
-    display: flex;
-    align-items: center;
-    width: 50%;
-    margin: 0 auto;
+.searchbar{
+  display: flex;
+  align-items: center;
+  width: 50%;
+  margin: 0 auto;
 }
 
-header form input[type="search"]{
-    padding: 10px;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    outline: none;
-    width: 100%;
+.searchbar input[type="search"] {
+  padding: 10px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  width: 100%;
 }
 
-header form button{
-    padding: 10px 20px;
-    margin-left: 10px;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    background-color: #745414;
-    color: #E1D8CA;
-    cursor: pointer;
+.searchbar button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  background-color: #745414;
+  color: #e1d8ca;
+  cursor: pointer;
 }
 
-header form button:hover{
-    background-color: #5A3E10;
+.searchbar button:hover {
+  background-color: #5a3e10;
 }
 
-#filterPrice, #filterStore{
-    background-color: #745414; 
-    color: white; 
-    border: none; 
-    padding: 15px 32px; 
-    text-align: center; 
-    text-decoration: none; 
-    display: inline-block; 
-    font-size: 16px; 
-    margin: 4px 2px; 
-    cursor: pointer; 
-    position: relative;
-    left: 20px;
-    top: 10px;
+#filterPrice,
+#filterStore {
+  background-color: #745414;
+  color: white;
+  border: none;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  position: relative;
+  left: 20px;
+  top: 10px;
 }
 
-#filterPrice:hover, #filterStore:hover{
-    background-color: #5A3E10;
+#filterPrice:hover,
+#filterStore:hover {
+  background-color: #5a3e10;
 }
 
-#placeholder{
-    font-size: 20px;
-    color: #888;
-    text-align: center;
-    margin-top: 50px;
-    justify-content: center;
+#placeholder {
+  font-size: 20px;
+  color: #888;
+  text-align: center;
+  margin-top: 50px;
+  justify-content: center;
 }
 
-.card{
-    background-color: #5A3E10;
+.card {
+  background-color: #5a3e10;
+  color: white;
+  margin: 10px;
+  border-radius: 20px;
+  width: 400px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.card img {
+  width: 300px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagButton{
     color: white;
-    margin: 10px;
-    border-radius: 20px;
-    width: 400px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-.card img{
-    width: 300px;
+    background-color: #5a3e10;
+    border-radius: 15px;
+    font-size: x-large;
+    border: 0;
+    padding: 10px;
+    margin: 15px;
 }

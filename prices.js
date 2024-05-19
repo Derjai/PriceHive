@@ -16,9 +16,15 @@ function toHTML(prices, titles, imgs, links) {
 async function getOlimpicaValues(values, titles, links, imgs) {
   var valuesText = await Promise.all(
     values.map(async (element) => {
-      const priceElements = await element.$$('.olimpica-dinamic-flags-0-x-currencyInteger');
-      const priceParts = await Promise.all(priceElements.map(priceElement => priceElement.evaluate(el => el.innerText)));
-      const price = priceParts.join('');
+      const priceElements = await element.$$(
+        ".olimpica-dinamic-flags-0-x-currencyInteger"
+      );
+      const priceParts = await Promise.all(
+        priceElements.map((priceElement) =>
+          priceElement.evaluate((el) => el.innerText)
+        )
+      );
+      const price = priceParts.join("");
       return price;
     })
   );
@@ -35,7 +41,6 @@ async function getOlimpicaValues(values, titles, links, imgs) {
     })
   );
 
-  // Get the text content of each element in the titles array
   var linksSrc = await Promise.all(
     links.map(async (element) => {
       return await element.evaluate((node) => node.getAttribute("href"));
@@ -52,7 +57,6 @@ async function getValues(values, titles, links, imgs) {
     })
   );
 
-  // Get the text content of each element in the titles array
   var titlesText = await Promise.all(
     titles.map(async (element) => {
       return await element.evaluate((node) => node.textContent.trim());
@@ -65,7 +69,6 @@ async function getValues(values, titles, links, imgs) {
     })
   );
 
-  // Get the text content of each element in the titles array
   var linksSrc = await Promise.all(
     links.map(async (element) => {
       return await element.evaluate((node) => node.getAttribute("href"));
@@ -75,38 +78,55 @@ async function getValues(values, titles, links, imgs) {
   return [valuesText, titlesText, linksSrc, imgsSrc];
 }
 
-async function getCheapestProducts(values, titles, links, imgs, addStoreLink=true,addStoreImg=true,Store) {
-  values = values.slice(0,5);
-  titles = titles.slice(0,5);
-  links = links.slice(0,5);
-  imgs = imgs.slice(0,5);
+async function getCheapestProducts(
+  values,
+  titles,
+  links,
+  imgs,
+  addStoreLink = true,
+  addStoreImg = true,
+  Store
+) {
+  values = values.slice(0, 5);
+  titles = titles.slice(0, 5);
+  links = links.slice(0, 5);
+  imgs = imgs.slice(0, 5);
 
-  if (Store === "https://www.olimpica.com/"){
-    [valuesText,titlesText,linksSrc,imgsSrc]= await getOlimpicaValues(values,titles,links,imgs);
-    
+  if (Store === "https://www.olimpica.com/") {
+    [valuesText, titlesText, linksSrc, imgsSrc] = await getOlimpicaValues(
+      values,
+      titles,
+      links,
+      imgs
+    );
   } else {
-    [valuesText,titlesText,linksSrc,imgsSrc]= await getValues(values,titles,links,imgs);
+    [valuesText, titlesText, linksSrc, imgsSrc] = await getValues(
+      values,
+      titles,
+      links,
+      imgs
+    );
   }
 
-  const products= valuesText.map((price,i)=>({
+  const products = valuesText.map((price, i) => ({
     title: titlesText[i],
-    price: parseFloat(price.replace(/\./g, '').replace(/[^0-9.-]+/g,"")),
-    link: addStoreLink ? Store + linksSrc[i]: linksSrc[i],
-    img: addStoreImg ? Store + imgsSrc[i]: imgsSrc[i]
-  }))
-  products.sort((a,b)=> a.price - b.price);
-  const cheapestThreeProducts = products.slice(0,3);
+    price: parseFloat(price.replace(/\./g, "").replace(/[^0-9.-]+/g, "")),
+    link: addStoreLink ? Store + linksSrc[i] : linksSrc[i],
+    img: addStoreImg ? Store + imgsSrc[i] : imgsSrc[i],
+  }));
+  products.sort((a, b) => a.price - b.price);
+  const cheapestThreeProducts = products.slice(0, 3);
   return cheapestThreeProducts;
 }
 
-async function mercadoLibrePrices() {
+async function mercadoLibrePrices(Product) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.mercadolibre.com.co/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.locator(".nav-search-input");
   const searchButton = await page.locator(".nav-search-btn");
-  await searchBar.fill("Samsung S20");
+  await searchBar.fill(Product);
   await searchButton.click();
   await page.waitForLoadState("domcontentloaded");
   const newItem = await page.$('[title="Nuevo"]');
@@ -126,7 +146,15 @@ async function mercadoLibrePrices() {
     ".ui-search-item__group__element.ui-search-link__title-card.ui-search-link"
   );
 
-  const cheapestProducts = await getCheapestProducts(values,titles,links,imgs,false,false,"https://www.mercadolibre.com.co/");
+  const cheapestProducts = await getCheapestProducts(
+    values,
+    titles,
+    links,
+    imgs,
+    false,
+    false,
+    "https://www.mercadolibre.com.co/"
+  );
 
   await browser.close();
   return toHTML(
@@ -137,23 +165,38 @@ async function mercadoLibrePrices() {
   );
 }
 
-async function olimpicaPrices() {
+async function olimpicaPrices(Product) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.olimpica.com/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.locator('input[id^="downshift-"][id$="-input"]');
-  await searchBar.fill("Samsung S20");
+  await searchBar.fill(Product);
   await page.keyboard.press("Enter");
-  await page.waitForSelector('.vtex-search-result-3-x-galleryItem', { state: 'attached' });
-  const products = await page.$$('.vtex-search-result-3-x-galleryItem', { state: 'attached' });
-  console.log(`Found ${products.length} products`); 
-  var values = await page.$$('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF');
-  var titles = await page.$$('vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body');
-  var links = await page.$$('vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--product-summary h-100 flex flex-column');
-  var imgs = await page.$$('vtex-product-summary-2-x-imageNormal vtex-product-summary-2-x-image vtex-product-summary-2-x-mainImageHovered');
+  await page.waitForSelector(
+    ".vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF"
+  );
 
-  const cheapestProducts = await getCheapestProducts(values,titles,links,imgs,false,false,"https://www.olimpica.com/");
+  var values = await page.$$(
+    ".vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF"
+  );
+  var titles = await page.$$(
+    "span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName.t-body"
+  );
+  var links = await page.$$("span.vtex-product-summary-2-x-productBrand");
+  var imgs = await page.$$(
+    "img.vtex-product-summary-2-x-imageNormal.vtex-product-summary-2-x-image.vtex-product-summary-2-x-mainImageHovered"
+  );
+
+  const cheapestProducts = await getCheapestProducts(
+    values,
+    titles,
+    links,
+    imgs,
+    false,
+    false,
+    "https://www.olimpica.com/"
+  );
   await browser.close();
   return toHTML(
     cheapestProducts.map((product) => product.price),
@@ -163,13 +206,13 @@ async function olimpicaPrices() {
   );
 }
 
-async function alkostoPrices() {
-  const browser = await chromium.launch({ headless: false });
+async function alkostoPrices(Product) {
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.alkosto.com/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.locator("#js-site-search-input");
-  await searchBar.fill("Samsung S23");
+  await searchBar.fill(Product);
   await searchBar.click();
   await page.press("#js-site-search-input", "Enter");
   await page.waitForLoadState("domcontentloaded");
@@ -185,51 +228,67 @@ async function alkostoPrices() {
     ".product__item__information__image.js-algolia-product-click img"
   );
 
-  const cheapestProducts = await getCheapestProducts(values,titles,links,imgs,true,true,"https://www.alkosto.com/");
+  const cheapestProducts = await getCheapestProducts(
+    values,
+    titles,
+    links,
+    imgs,
+    true,
+    true,
+    "https://www.alkosto.com/"
+  );
 
   await browser.close();
   return toHTML(
-    cheapestProducts.map((product)=>product.price),
-    cheapestProducts.map((product)=>product.title),
-    cheapestProducts.map((product)=>product.img),
-    cheapestProducts.map((product)=>product.link)
+    cheapestProducts.map((product) => product.price),
+    cheapestProducts.map((product) => product.title),
+    cheapestProducts.map((product) => product.img),
+    cheapestProducts.map((product) => product.link)
   );
 }
 
-async function exitoPrices() {
+async function exitoPrices(Product) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.exito.com/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.$('[data-testid="store-input"]');
-  await searchBar.fill("Samsung S20");
+  await searchBar.fill(Product);
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
 
   await page.waitForSelector("p.ProductPrice_container__price__XmMWA");
 
-  var values = await page.$$('p.ProductPrice_container__price__XmMWA')
-  var titleLinks = await page.$$('a[data-testid="product-link"][title]')
+  var values = await page.$$("p.ProductPrice_container__price__XmMWA");
+  var titleLinks = await page.$$('a[data-testid="product-link"][title]');
   var imgs = await page.$$(".imagen_plp");
 
-  const cheapestThreeProducts = await getCheapestProducts(values,titleLinks,titleLinks,imgs,true,false,"https://www.exito.com/");
+  const cheapestThreeProducts = await getCheapestProducts(
+    values,
+    titleLinks,
+    titleLinks,
+    imgs,
+    true,
+    false,
+    "https://www.exito.com/"
+  );
 
   await browser.close();
   return toHTML(
-    cheapestThreeProducts.map((product)=>product.price),
-    cheapestThreeProducts.map((product)=>product.title),
-    cheapestThreeProducts.map((product)=>product.img),
-    cheapestThreeProducts.map((product)=>product.link)
+    cheapestThreeProducts.map((product) => product.price),
+    cheapestThreeProducts.map((product) => product.title),
+    cheapestThreeProducts.map((product) => product.img),
+    cheapestThreeProducts.map((product) => product.link)
   );
 }
 
-async function falabellaPrices() {
-  const browser = await chromium.launch({ headless: false });
+async function falabellaPrices(Product) {
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.falabella.com.co/falabella-co/");
   await page.waitForLoadState("domcontentloaded");
   const searchBar = await page.locator("#testId-SearchBar-Input");
-  await searchBar.fill("Samsung S20");
+  await searchBar.fill(Product);
   await page.keyboard.press("Enter");
   await page.waitForLoadState("domcontentloaded");
 
@@ -246,11 +305,19 @@ async function falabellaPrices() {
 
   imgs = await imgs.filter(async (img) => {
     if (await img.isVisible()) {
-      return imgs
+      return imgs;
     }
   });
 
-  const cheapestProducts = await getCheapestProducts(values,titles,links,imgs,false,false,"https://www.falabella.com.co/falabella-co/");
+  const cheapestProducts = await getCheapestProducts(
+    values,
+    titles,
+    links,
+    imgs,
+    false,
+    false,
+    "https://www.falabella.com.co/falabella-co/"
+  );
 
   await browser.close();
   return toHTML(
@@ -260,6 +327,7 @@ async function falabellaPrices() {
     cheapestProducts.map((product) => product.link)
   );
 }
+
 
 module.exports = {
   mercadoLibrePrices,
