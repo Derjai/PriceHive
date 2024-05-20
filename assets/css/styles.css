@@ -4,7 +4,7 @@ body {
 }
 
 header {
-  background-color: #e1d8ca;
+  background-color: #E1D8CA;
   color: #745414;
   display: flex;
 }
@@ -24,14 +24,14 @@ header .logo h1 {
   margin: 0;
 }
 
-.searchbar{
+header form{
   display: flex;
   align-items: center;
   width: 50%;
   margin: 0 auto;
 }
 
-.searchbar input[type="search"] {
+header form input[type="search"]{
   padding: 10px;
   font-size: 1em;
   border: none;
@@ -40,7 +40,7 @@ header .logo h1 {
   width: 100%;
 }
 
-.searchbar button {
+header form  button {
   padding: 10px 20px;
   margin-left: 10px;
   font-size: 1em;
@@ -51,7 +51,7 @@ header .logo h1 {
   cursor: pointer;
 }
 
-.searchbar button:hover {
+header form button:hover {
   background-color: #5a3e10;
 }
 
@@ -102,15 +102,18 @@ header .logo h1 {
 .pagination {
   display: flex;
   justify-content: center;
-  align-items: center;
+  margin: 20px 0;
 }
 
-.pagButton{
-    color: white;
-    background-color: #5a3e10;
-    border-radius: 15px;
-    font-size: x-large;
-    border: 0;
-    padding: 10px;
-    margin: 15px;
+.pagination a {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #745414;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.pagination a:hover {
+  background-color: #5a3e10;
 }

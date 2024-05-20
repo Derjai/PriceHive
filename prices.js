@@ -157,12 +157,7 @@ async function mercadoLibrePrices(Product) {
   );
 
   await browser.close();
-  return toHTML(
-    cheapestProducts.map((product) => product.price),
-    cheapestProducts.map((product) => product.title),
-    cheapestProducts.map((product) => product.img),
-    cheapestProducts.map((product) => product.link)
-  );
+  return cheapestProducts;
 }
 
 async function olimpicaPrices(Product) {
@@ -198,12 +193,7 @@ async function olimpicaPrices(Product) {
     "https://www.olimpica.com/"
   );
   await browser.close();
-  return toHTML(
-    cheapestProducts.map((product) => product.price),
-    cheapestProducts.map((product) => product.title),
-    cheapestProducts.map((product) => product.img),
-    cheapestProducts.map((product) => product.link)
-  );
+  return cheapestProducts;
 }
 
 async function alkostoPrices(Product) {
@@ -239,12 +229,7 @@ async function alkostoPrices(Product) {
   );
 
   await browser.close();
-  return toHTML(
-    cheapestProducts.map((product) => product.price),
-    cheapestProducts.map((product) => product.title),
-    cheapestProducts.map((product) => product.img),
-    cheapestProducts.map((product) => product.link)
-  );
+  return cheapestProducts;
 }
 
 async function exitoPrices(Product) {
@@ -263,7 +248,7 @@ async function exitoPrices(Product) {
   var titleLinks = await page.$$('a[data-testid="product-link"][title]');
   var imgs = await page.$$(".imagen_plp");
 
-  const cheapestThreeProducts = await getCheapestProducts(
+  const cheapestProducts = await getCheapestProducts(
     values,
     titleLinks,
     titleLinks,
@@ -274,12 +259,7 @@ async function exitoPrices(Product) {
   );
 
   await browser.close();
-  return toHTML(
-    cheapestThreeProducts.map((product) => product.price),
-    cheapestThreeProducts.map((product) => product.title),
-    cheapestThreeProducts.map((product) => product.img),
-    cheapestThreeProducts.map((product) => product.link)
-  );
+  return cheapestProducts;
 }
 
 async function falabellaPrices(Product) {
@@ -320,12 +300,7 @@ async function falabellaPrices(Product) {
   );
 
   await browser.close();
-  return toHTML(
-    cheapestProducts.map((product) => product.price),
-    cheapestProducts.map((product) => product.title),
-    cheapestProducts.map((product) => product.img),
-    cheapestProducts.map((product) => product.link)
-  );
+  return cheapestProducts;
 }
 
 
@@ -335,4 +310,5 @@ module.exports = {
   falabellaPrices,
   exitoPrices,
   alkostoPrices,
+  toHTML
 };
