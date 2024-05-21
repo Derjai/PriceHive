@@ -90,13 +90,43 @@ header form button:hover {
   color: white;
   margin: 10px;
   border-radius: 20px;
-  width: 400px;
   padding-top: 20px;
   padding-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.card a{
+  text-decoration: none;
+  color: azure;
+  background-color: #745414;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.cardinfo{
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+}
+
+.card h2::before{
+  content:"$";
+}
+
+.card h2{
+  color: green;
+}
+
+.card h4{
+  color:#c59d4d;
 }
 
 .card img {
-  width: 300px;
+  width: 200px;
+  margin-left: 100px;
+  margin-right: 200px;
+  border-radius: 20px;
 }
 
 .pagination {

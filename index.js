@@ -50,7 +50,6 @@ app.get('/search', async (req, res) => {
       for (let i = 1; i<=totalPages; i++) {
           pagination += `<a href="/search?search=${searchValue}&page=${i}">${i}</a>`;
       }
-      console.log(pagination);
       res.send(`
           <!DOCTYPE html>
           <html lang="en">
